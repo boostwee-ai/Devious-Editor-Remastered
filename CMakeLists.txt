@@ -23,6 +23,16 @@ target_link_libraries(${PROJECT_NAME} geode-sdk)
 
 if (WIN32)
     target_link_libraries(${PROJECT_NAME} ws2_32 iphlpapi)
+
+    # The networking .cpp files must include winsock2.h before any Windows
+    # headers. Geode's precompiled header already contains windows.h (which
+    # pulls in the legacy winsock.h), so we skip the PCH for these files and
+    # let them control the include order themselves.
+    set_source_files_properties(
+        src/network/Discovery.cpp
+        src/network/Session.cpp
+        PROPERTIES SKIP_PRECOMPILE_HEADERS ON
+    )
 endif()
 
 setup_geode_mod(${PROJECT_NAME})

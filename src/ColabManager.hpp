@@ -65,6 +65,7 @@ private:
     void handleObjPlace(const std::string& body);
     void handleObjDelete(const std::string& body);
     void handleObjEdit(const std::string& body);
+    void flashRemotePeer();
 
     // Dispatch to Cocos main thread.
     template<typename F>
