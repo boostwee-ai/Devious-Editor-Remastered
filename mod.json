@@ -7,15 +7,9 @@
     "id": "boostwee-ai.devious-editor-remastered",
     "name": "Devious Editor Remastered",
     "version": "v1.0.0",
-    "developers": [
-        {
-            "username": "boostwee-ai"
-        }
-    ],
+    "developer": "boostwee-ai",
     "description": "Real-time collaborative level editing over local network (LAN). Same OS only.",
-    "links": {
-        "source": "https://github.com/boostwee-ai/Devious-Editor-Remastered"
-    },
+    "repository": "https://github.com/boostwee-ai/Devious-Editor-Remastered",
     "settings": {
         "username": {
             "name": "Display Name",
