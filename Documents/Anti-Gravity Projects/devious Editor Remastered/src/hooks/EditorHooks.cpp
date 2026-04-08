@@ -1,0 +1,136 @@
+#include <Geode/Geode.hpp>
+#include <Geode/modify/LevelEditorLayer.hpp>
+#include <Geode/modify/EditorUI.hpp>
+#include "../ColabManager.hpp"
+#include "../ui/CollabPanel.hpp"
+#include "../ui/PresenceLayer.hpp"
+
+using namespace geode::prelude;
+
+// -----------------------------------------------------------------------
+//  LevelEditorLayer hooks
+//  - init: add PresenceLayer, start ColabManager
+//  - onExit / destructor: stop ColabManager
+//  - update: forward camera data for presence indicators
+//  - addToSection / removeObject / moveObject: sync to peer
+// -----------------------------------------------------------------------
+class $modify(MyLEL, LevelEditorLayer) {
+
+    struct Fields {
+        PresenceLayer* presenceLayer = nullptr;
+        float          viewportSendTimer = 0.f;
+    };
+
+    bool init(GJGameLevel* level, bool unk) {
+        if (!LevelEditorLayer::init(level, unk)) return false;
+
+        // Add presence layer on top of everything
+        auto pl = PresenceLayer::create();
+        if (pl) {
+            this->addChild(pl, 1000);
+            m_fields->presenceLayer = pl;
+            ColabManager::get()->setPresenceLayer(pl);
+        }
+
+        ColabManager::get()->onEnterEditor();
+        return true;
+    }
+
+    void onExit() {
+        ColabManager::get()->onExitEditor();
+        LevelEditorLayer::onExit();
+    }
+
+    void update(float dt) {
+        LevelEditorLayer::update(dt);
+
+        // Send viewport at ~10 Hz to avoid flooding the connection
+        m_fields->viewportSendTimer += dt;
+        if (m_fields->viewportSendTimer >= 0.1f) {
+            m_fields->viewportSendTimer = 0.f;
+            CCPoint worldPos = this->getPosition();
+            ColabManager::get()->sendViewport(-worldPos.x, -worldPos.y);
+        }
+
+        // Keep presence indicators projected in world space
+        if (m_fields->presenceLayer) {
+            m_fields->presenceLayer->onEditorUpdate(dt);
+        }
+    }
+
+    // Called by GD when a new object is placed in the editor
+    GameObject* addObjectFromString(gd::string str) {
+        auto* obj = LevelEditorLayer::addObjectFromString(str);
+        if (obj && ColabManager::get()->isInSession()) {
+            // Serialize the placed object and send to peer
+            std::string objStr = std::string(str);
+            ColabManager::get()->sendObjPlace(objStr);
+        }
+        return obj;
+    }
+
+    // Called by GD when objects are deleted
+    void removeObject(GameObject* obj, bool idk) {
+        if (obj && ColabManager::get()->isInSession()) {
+            std::vector<int> ids = { obj->m_uniqueID };
+            ColabManager::get()->sendObjDelete(ids);
+        }
+        LevelEditorLayer::removeObject(obj, idk);
+    }
+};
+
+// -----------------------------------------------------------------------
+//  EditorUI hooks
+//  - Add the collab button to the toolbar
+// -----------------------------------------------------------------------
+class $modify(MyEditorUI, EditorUI) {
+
+    bool init(LevelEditorLayer* editorLayer) {
+        if (!EditorUI::init(editorLayer)) return false;
+        addCollabButton();
+        return true;
+    }
+
+    void addCollabButton() {
+        // Find the top-right toolbar area where GD's standard buttons live
+        auto topMenu = this->getChildByID("undo-menu");
+        if (!topMenu) topMenu = this->getChildByID("editor-buttons-menu");
+        if (!topMenu) {
+            // Fallback: add to the layer directly at a safe corner position
+            auto btn = createButton();
+            btn->setPosition(CCDirector::get()->getWinSize() - CCPoint{30.f, 30.f});
+            this->addChild(btn, 100);
+            return;
+        }
+
+        auto btn = createButton();
+        topMenu->addChild(btn);
+        if (auto layout = topMenu->getLayout()) {
+            layout->ignoreInvisibleChildren(true);
+            topMenu->updateLayout();
+        }
+    }
+
+    CCMenuItemSpriteExtra* createButton() {
+        auto spr = CCSprite::createWithSpriteFrameName("GJ_plainBtn_001.png");
+        if (!spr) spr = CCSprite::create();
+        spr->setScale(0.75f);
+
+        // Overlay a small network icon using a label if no custom sprite
+        auto label = CCLabelBMFont::create("CO", "bigFont.fnt");
+        label->setScale(0.5f);
+        label->setPosition(spr->getContentSize() / 2);
+        spr->addChild(label);
+
+        auto btn = CCMenuItemSpriteExtra::create(
+            spr, this, menu_selector(MyEditorUI::onCollabButton)
+        );
+        btn->setID("devious-collab-button");
+        return btn;
+    }
+
+    void onCollabButton(CCObject*) {
+        auto panel = CollabPanel::create();
+        if (panel) panel->show();
+    }
+};

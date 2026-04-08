@@ -1,0 +1,33 @@
+{
+    "geode": "5.5.3",
+    "gd": {
+        "win": "2.2081",
+        "mac": "2.2081"
+    },
+    "id": "boostwee-ai.devious-editor-remastered",
+    "name": "Devious Editor Remastered",
+    "version": "v1.0.0",
+    "developers": [
+        {
+            "username": "boostwee-ai"
+        }
+    ],
+    "description": "Real-time collaborative level editing over local network (LAN). Same OS only.",
+    "links": {
+        "source": "https://github.com/boostwee-ai/Devious-Editor-Remastered"
+    },
+    "settings": {
+        "username": {
+            "name": "Display Name",
+            "description": "Your name shown to other collaborators",
+            "type": "string",
+            "default": "Player"
+        },
+        "accepting-requests": {
+            "name": "Accept Collaboration Requests",
+            "description": "Allow other players on your LAN to invite you to collaborate",
+            "type": "bool",
+            "default": true
+        }
+    }
+}
