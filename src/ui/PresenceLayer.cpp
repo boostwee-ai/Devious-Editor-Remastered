@@ -105,7 +105,7 @@ void PresenceLayer::addPeer(
 
     this->addChild(ind, 10);
     m_indicators[ip]  = ind;
-    m_worldPos[ip]    = {0.f, 0.f};
+    m_worldPos[ip]    = CCPoint(0.f, 0.f);
 }
 
 void PresenceLayer::removePeer(const std::string& ip) {
@@ -120,7 +120,7 @@ void PresenceLayer::removePeer(const std::string& ip) {
 void PresenceLayer::updatePeerViewport(
     const std::string& ip, float worldX, float worldY)
 {
-    m_worldPos[ip] = {worldX, worldY};
+    m_worldPos[ip] = CCPoint(worldX, worldY);
 
     auto it = m_indicators.find(ip);
     if (it == m_indicators.end()) return;

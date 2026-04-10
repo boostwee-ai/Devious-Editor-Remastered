@@ -303,9 +303,16 @@ void ColabManager::handleObjPlace(const std::string& body) {
     std::string objStr = jStr(body, "obj");
     if (objStr.empty()) return;
 
-    // Use GD's built-in object string parser to create the object
-    auto obj = editor->addObjectFromString(objStr);
+    // We use simple object creation since addObjectFromString bindings are unreliable
+    // Pattern mirrors the sister project's ActionSerializer.cpp
+    // For now, only basic placement is supported via this fallback path.
+    // In a future update, we can re-enable full string parsing.
+    auto obj = editor->createObject(1, CCPointZero, true);
     if (!obj) return;
+
+    // Minimum needed to show something
+    obj->customSetup(objStr.c_str(), true);
+    editor->m_objects->addObject(obj);
 
     // Flash the presence indicator
     if (m_presenceLayer) {
@@ -333,10 +340,13 @@ void ColabManager::handleObjDelete(const std::string& body) {
         tok.erase(0, tok.find_first_not_of(" \t"));
         if (tok.empty()) continue;
         int id = std::stoi(tok);
-        // Find object by unique ID in the editor
-        auto obj = editor->getObjectByUniqueID(id);
-        if (obj) {
-            editor->removeObject(obj, true);
+
+        // Find object manually in m_objects array
+        for (auto obj : CCArrayExt<GameObject*>(editor->m_objects)) {
+            if (obj->m_uniqueID == id) {
+                editor->removeObject(obj, true);
+                break;
+            }
         }
     }
 
@@ -351,8 +361,14 @@ void ColabManager::handleObjEdit(const std::string& body) {
     if (!editor) return;
 
     int id = jInt(body, "id");
-    auto obj = editor->getObjectByUniqueID(id);
-    if (!obj) return;
+    GameObject* found = nullptr;
+    for (auto obj : CCArrayExt<GameObject*>(editor->m_objects)) {
+        if (obj->m_uniqueID == id) {
+            found = obj;
+            break;
+        }
+    }
+    if (!found) return;
 
     // Extract props JSON and apply using GD's property string API
     auto propsPos = body.find("\"props\":");
@@ -360,7 +376,7 @@ void ColabManager::handleObjEdit(const std::string& body) {
     // Props are stored as the GD property key=value pairs in the "props" string
     std::string props = jStr(body, "props");
     if (!props.empty()) {
-        obj->customSetup(props.c_str(), false);
+        found->customSetup(props.c_str(), false);
     }
 
     if (m_presenceLayer) {
