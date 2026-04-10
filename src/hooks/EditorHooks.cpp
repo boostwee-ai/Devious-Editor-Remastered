@@ -92,23 +92,17 @@ class $modify(MyEditorUI, EditorUI) {
     }
 
     void addCollabButton() {
-        // Find the top-right toolbar area where GD's standard buttons live
-        auto topMenu = this->getChildByID("undo-menu");
-        if (!topMenu) topMenu = this->getChildByID("editor-buttons-menu");
-        if (!topMenu) {
-            // Fallback: add to the layer directly at a safe corner position
-            auto btn = createButton();
-            btn->setPosition(CCDirector::get()->getWinSize() - CCPoint{30.f, 30.f});
-            this->addChild(btn, 100);
-            return;
-        }
-
+        auto menu = CCMenu::create();
+        menu->setID("devious-collab-menu");
+        
         auto btn = createButton();
-        topMenu->addChild(btn);
-        if (auto layout = static_cast<AxisLayout*>(topMenu->getLayout())) {
-            // Removed missing member reference for setIgnoreInvisibleChildren
-            topMenu->updateLayout();
-        }
+        menu->addChild(btn);
+        
+        // Position at bottom-right corner, safe from standard toolbars
+        auto winSize = CCDirector::get()->getWinSize();
+        menu->setPosition({ winSize.width - 40.f, 40.f });
+        
+        this->addChild(menu, 100);
     }
 
     CCMenuItemSpriteExtra* createButton() {

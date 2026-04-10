@@ -82,7 +82,7 @@ void CollabPanel::buildList() {
         // Only show peers that accept requests
         if (!peer.accepting) continue;
 
-        auto row = CCMenu::create();
+        auto row = CCNode::create();
         row->setContentSize({280.f, 36.f});
 
         // Name label
@@ -101,6 +101,11 @@ void CollabPanel::buildList() {
         platLbl->setPosition({8.f + lbl->getScaledContentWidth() + 6.f, 18.f});
         row->addChild(platLbl);
 
+        // Isolated menu for the button
+        auto btnMenu = CCMenu::create();
+        btnMenu->setPosition({0, 0});
+        row->addChild(btnMenu);
+
         // Invite button
         auto btn = CCMenuItemSpriteExtra::create(
             ButtonSprite::create("Invite", "bigFont.fnt", "GJ_button_01.png"),
@@ -109,7 +114,7 @@ void CollabPanel::buildList() {
         );
         btn->setPosition({248.f, 18.f});
         btn->setTag(static_cast<int>(ColabManager::get()->peerIndex(peer.ip)));
-        row->addChild(btn);
+        btnMenu->addChild(btn);
 
         m_listMenu->addChild(row);
     }
