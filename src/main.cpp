@@ -1,5 +1,4 @@
 #include <Geode/Geode.hpp>
-#include "network/NetworkTypes.hpp"
 using namespace geode::prelude;
 
 // All hooks are registered via $modify in their respective translation units.

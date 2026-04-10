@@ -6,9 +6,17 @@
 #include <vector>
 #include <mutex>
 
+// -----------------------------------------------------------------------
+//  Discovery — UDP broadcast peer discovery
+//
+//  * Sends an Announce packet every ANNOUNCE_INTERVAL_MS on the LAN
+//    broadcast address (255.255.255.255:DISCOVERY_PORT).
+//  * Listens for incoming Announce and Query packets on the same port.
+//  * Calls onPeerFound when a new (or updated) peer is discovered.
+// -----------------------------------------------------------------------
 class Discovery {
 public:
-    using PeerCallback     = std::function<void(const PeerInfo&)>;
+    using PeerCallback = std::function<void(const PeerInfo&)>;
     using PeerLostCallback = std::function<void(const std::string& ip)>;
 
     static constexpr int ANNOUNCE_INTERVAL_MS = 2000;
@@ -17,15 +25,23 @@ public:
     Discovery() = default;
     ~Discovery() { stop(); }
 
+    // Non-copyable
     Discovery(const Discovery&) = delete;
     Discovery& operator=(const Discovery&) = delete;
 
+    // Start broadcasting and listening.
     bool start(const std::string& username, bool accepting);
+
+    // Stop all threads and close sockets.
     void stop();
+
+    // Update accepting flag (user toggled the setting mid-session).
     void setAccepting(bool accepting);
 
+    // Get a snapshot of currently visible peers.
     std::vector<PeerInfo> peers() const;
 
+    // Callbacks (called from background thread — dispatch to main thread as needed).
     PeerCallback     onPeerFound;
     PeerLostCallback onPeerLost;
 
@@ -33,14 +49,15 @@ private:
     void broadcastLoop();
     void receiveLoop();
     void evictStaleLoop();
-    void handlePacket(const char* buf, int len, const std::string& fromIp);
-    void upsertPeer(const PeerInfo& p);
 
-    // Opaque handles — real socket types only in Discovery.cpp
-    socket_handle_t m_sendSock = INVALID_SOCK;
-    socket_handle_t m_recvSock = INVALID_SOCK;
+    std::string buildAnnounceJson() const;
+    void        handlePacket(const char* buf, int len, const std::string& fromIp);
+    void        upsertPeer(const PeerInfo& p);
 
-    std::string       m_username;
+    socket_t    m_sendSock  = INVALID_SOCKET;
+    socket_t    m_recvSock  = INVALID_SOCKET;
+
+    std::string m_username;
     std::atomic<bool> m_accepting{true};
     std::atomic<bool> m_running{false};
 
@@ -48,7 +65,8 @@ private:
     std::thread m_receiveThread;
     std::thread m_evictThread;
 
-    mutable std::mutex    m_peersMu;
-    std::vector<PeerInfo> m_peers;
-    std::vector<int64_t>  m_lastSeen;
+    mutable std::mutex          m_peersMu;
+    std::vector<PeerInfo>       m_peers;
+    // last-seen timestamps (parallel to m_peers)
+    std::vector<int64_t>        m_lastSeen;
 };

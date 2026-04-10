@@ -59,7 +59,7 @@ class $modify(MyLEL, LevelEditorLayer) {
     }
 
     // Called by GD when a new object is placed in the editor
-    GameObject* addObjectFromString(gd::string str) {
+    GameObject* addObjectFromString(std::string str) {
         auto* obj = LevelEditorLayer::addObjectFromString(str);
         if (obj && ColabManager::get()->isInSession()) {
             // Serialize the placed object and send to peer
@@ -105,8 +105,8 @@ class $modify(MyEditorUI, EditorUI) {
 
         auto btn = createButton();
         topMenu->addChild(btn);
-        if (auto layout = topMenu->getLayout()) {
-            layout->ignoreInvisibleChildren(true);
+        if (auto layout = static_cast<AxisLayout*>(topMenu->getLayout())) {
+            layout->setIgnoreInvisibleChildren(true);
             topMenu->updateLayout();
         }
     }
@@ -131,6 +131,6 @@ class $modify(MyEditorUI, EditorUI) {
 
     void onCollabButton(CCObject*) {
         auto panel = CollabPanel::create();
-        if (panel) panel->show();
+        if (panel) static_cast<FLAlertLayer*>(panel)->show();
     }
 };

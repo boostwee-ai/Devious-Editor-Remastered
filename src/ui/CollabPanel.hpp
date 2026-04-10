@@ -1,13 +1,15 @@
 #pragma once
 #include <Geode/Geode.hpp>
-#include <Geode/ui/Popup.hpp>
+#include "../network/Discovery.hpp"
+#include "../network/Session.hpp"
 
 using namespace geode::prelude;
 
 // -----------------------------------------------------------------------
 //  CollabPanel — popup listing available collaborators on the LAN.
+//  Displayed when the user clicks the collab button in the editor toolbar.
 // -----------------------------------------------------------------------
-class CollabPanel : public geode::Popup<> {
+class CollabPanel : public Popup<> {
 public:
     static CollabPanel* create();
 
@@ -20,14 +22,14 @@ private:
     void onInvite(CCObject* sender);
     void refreshList(float dt);
 
-    CCMenu*        m_listMenu   = nullptr;
+    CCMenu*     m_listMenu = nullptr;
     CCLabelBMFont* m_emptyLabel = nullptr;
 };
 
 // -----------------------------------------------------------------------
-//  InviteRequestPopup — shown on the host when a guest requests collab.
+//  InviteRequestPopup — shown on the host side when a guest requests collab.
 // -----------------------------------------------------------------------
-class InviteRequestPopup : public geode::Popup<std::string> {
+class InviteRequestPopup : public Popup<std::string> {
 public:
     static InviteRequestPopup* create(const std::string& guestName);
 

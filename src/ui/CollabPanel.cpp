@@ -26,13 +26,13 @@ bool CollabPanel::setup() {
     );
     m_emptyLabel->setScale(0.4f);
     m_emptyLabel->setOpacity(160);
-    m_emptyLabel->setPosition(m_mainLayer->getContentSize() / 2);
-    m_mainLayer->addChild(m_emptyLabel);
+    m_emptyLabel->setPosition(this->m_mainLayer->getContentSize() / 2);
+    this->m_mainLayer->addChild(m_emptyLabel);
 
     // Scrollable list area
     m_listMenu = CCMenu::create();
     m_listMenu->setPosition({0, 0});
-    m_listMenu->setContentSize(m_mainLayer->getContentSize());
+    m_listMenu->setContentSize(this->m_mainLayer->getContentSize());
     m_listMenu->setLayout(
         ColumnLayout::create()
             ->setAxisReverse(true)
@@ -40,12 +40,12 @@ bool CollabPanel::setup() {
             ->setGap(4.f)
             ->setAxisAlignment(AxisAlignment::End)
     );
-    m_mainLayer->addChild(m_listMenu);
+    this->m_mainLayer->addChild(m_listMenu);
 
     buildList();
 
     // Refresh every 2 s so the list stays current
-    this->schedule(schedule_selector(CollabPanel::refreshList), 2.f);
+    static_cast<CCNode*>(this)->schedule(schedule_selector(CollabPanel::refreshList), 2.f);
 
     return true;
 }
@@ -132,11 +132,11 @@ bool InviteRequestPopup::setup(std::string guestName) {
     std::string title = guestName + " would like\nto collaborate with you";
     auto lbl = CCLabelBMFont::create(title.c_str(), "bigFont.fnt");
     lbl->setScale(0.45f);
-    lbl->setPosition(m_mainLayer->getContentSize() / 2 + CCPoint{0.f, 20.f});
-    m_mainLayer->addChild(lbl);
+    lbl->setPosition(this->m_mainLayer->getContentSize() / 2 + CCPoint{0.f, 20.f});
+    this->m_mainLayer->addChild(lbl);
 
     auto menu = CCMenu::create();
-    menu->setPosition(m_mainLayer->getContentSize() / 2 - CCPoint{0.f, 30.f});
+    menu->setPosition(this->m_mainLayer->getContentSize() / 2 - CCPoint{0.f, 30.f});
 
     auto yesBtn = CCMenuItemSpriteExtra::create(
         ButtonSprite::create("Yes", "bigFont.fnt", "GJ_button_01.png"),
@@ -152,7 +152,7 @@ bool InviteRequestPopup::setup(std::string guestName) {
     noBtn->setPosition({60.f, 0.f});
     menu->addChild(noBtn);
 
-    m_mainLayer->addChild(menu);
+    this->m_mainLayer->addChild(menu);
     return true;
 }
 
