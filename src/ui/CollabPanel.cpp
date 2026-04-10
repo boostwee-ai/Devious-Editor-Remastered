@@ -189,10 +189,10 @@ bool InviteRequestPopup::init(std::string guestName) {
 
 void InviteRequestPopup::onAccept(CCObject*) {
     ColabManager::get()->acceptInvite();
-    this->onClose(nullptr);
+    this->removeFromParentAndCleanup(true);
 }
 
 void InviteRequestPopup::onDecline(CCObject*) {
     ColabManager::get()->declineInvite();
-    this->onClose(nullptr);
+    this->removeFromParentAndCleanup(true);
 }
