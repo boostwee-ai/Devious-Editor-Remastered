@@ -2,6 +2,9 @@
 #include "ui/CollabPanel.hpp"
 
 #include <Geode/Geode.hpp>
+#include <Geode/modify/LevelEditorLayer.hpp>
+#include <Geode/ui/Popup.hpp>
+#include <Geode/ui/GeodeUI.hpp>
 #include <Geode/loader/SettingV3.hpp>
 #include <sstream>
 
@@ -331,7 +334,7 @@ void ColabManager::handleObjDelete(const std::string& body) {
         if (tok.empty()) continue;
         int id = std::stoi(tok);
         // Find object by unique ID in the editor
-        auto obj = editor->getObjByUniqueID(id);
+        auto obj = editor->getObjectByUniqueID(id);
         if (obj) {
             editor->removeObject(obj, true);
         }
@@ -348,7 +351,7 @@ void ColabManager::handleObjEdit(const std::string& body) {
     if (!editor) return;
 
     int id = jInt(body, "id");
-    auto obj = editor->getObjByUniqueID(id);
+    auto obj = editor->getObjectByUniqueID(id);
     if (!obj) return;
 
     // Extract props JSON and apply using GD's property string API

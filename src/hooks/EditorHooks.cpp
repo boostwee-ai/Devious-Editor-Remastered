@@ -131,6 +131,6 @@ class $modify(MyEditorUI, EditorUI) {
 
     void onCollabButton(CCObject*) {
         auto panel = CollabPanel::create();
-        if (panel) static_cast<FLAlertLayer*>(panel)->show();
+        if (panel) static_cast<geode::Popup<>*>(panel)->show();
     }
 };
