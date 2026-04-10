@@ -311,7 +311,7 @@ void ColabManager::handleObjPlace(const std::string& body) {
     if (!obj) return;
 
     // Minimum needed to show something
-    obj->customSetup(objStr.c_str(), true);
+    obj->customSetup();
     editor->m_objects->addObject(obj);
 
     // Flash the presence indicator
@@ -370,13 +370,10 @@ void ColabManager::handleObjEdit(const std::string& body) {
     }
     if (!found) return;
 
-    // Extract props JSON and apply using GD's property string API
-    auto propsPos = body.find("\"props\":");
-    if (propsPos == std::string::npos) return;
-    // Props are stored as the GD property key=value pairs in the "props" string
+    // Extract props JSON and apply
     std::string props = jStr(body, "props");
     if (!props.empty()) {
-        found->customSetup(props.c_str(), false);
+        found->customSetup();
     }
 
     if (m_presenceLayer) {

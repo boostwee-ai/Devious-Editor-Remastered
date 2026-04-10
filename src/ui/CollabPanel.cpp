@@ -8,7 +8,7 @@ using namespace geode::prelude;
 // -----------------------------------------------------------------------
 CollabPanel* CollabPanel::create() {
     auto ret = new CollabPanel();
-    if (ret->initAnchored(320.f, 260.f)) {
+    if (ret->init()) {
         ret->autorelease();
         return ret;
     }
@@ -16,8 +16,25 @@ CollabPanel* CollabPanel::create() {
     return nullptr;
 }
 
-bool CollabPanel::setup() {
+bool CollabPanel::init() {
+    if (!FLAlertLayer::init(150)) return false;
+
+    auto winSize = CCDirector::get()->getWinSize();
+
+    m_mainLayer = CCLayer::create();
+    this->addChild(m_mainLayer);
+
+    auto bg = CCScale9Sprite::create("GJ_square01.png");
+    bg->setContentSize({320.f, 260.f});
+    bg->setPosition(winSize / 2);
+    m_mainLayer->addChild(bg);
+
     this->setTitle("Collaborate");
+    this->setTouchEnabled(true);
+    this->setKeypadEnabled(true);
+
+    // Position title (FLAlertLayer has a title member sometimes, but let's manual it if needed)
+    // For now, let's just use the main setup logic but adjust positioning
 
     // Empty-state label (shown while list is loading or no peers are found)
     m_emptyLabel = CCLabelBMFont::create(
@@ -26,13 +43,13 @@ bool CollabPanel::setup() {
     );
     m_emptyLabel->setScale(0.4f);
     m_emptyLabel->setOpacity(160);
-    m_emptyLabel->setPosition(this->m_mainLayer->getContentSize() / 2);
-    this->m_mainLayer->addChild(m_emptyLabel);
+    m_emptyLabel->setPosition(winSize / 2);
+    m_mainLayer->addChild(m_emptyLabel);
 
     // Scrollable list area
     m_listMenu = CCMenu::create();
-    m_listMenu->setPosition({0, 0});
-    m_listMenu->setContentSize(this->m_mainLayer->getContentSize());
+    m_listMenu->setPosition(winSize / 2);
+    m_listMenu->setContentSize({320.f, 260.f});
     m_listMenu->setLayout(
         ColumnLayout::create()
             ->setAxisReverse(true)
@@ -110,7 +127,7 @@ void CollabPanel::onInvite(CCObject* sender) {
 }
 
 void CollabPanel::onClose(CCObject* o) {
-    Popup::onClose(o);
+    this->removeFromParentAndCleanup(true);
 }
 
 // -----------------------------------------------------------------------
@@ -118,7 +135,7 @@ void CollabPanel::onClose(CCObject* o) {
 // -----------------------------------------------------------------------
 InviteRequestPopup* InviteRequestPopup::create(const std::string& guestName) {
     auto ret = new InviteRequestPopup();
-    if (ret->initAnchored(300.f, 160.f, guestName)) {
+    if (ret->init(guestName)) {
         ret->autorelease();
         return ret;
     }
@@ -126,17 +143,28 @@ InviteRequestPopup* InviteRequestPopup::create(const std::string& guestName) {
     return nullptr;
 }
 
-bool InviteRequestPopup::setup(std::string guestName) {
+bool InviteRequestPopup::init(std::string guestName) {
+    if (!FLAlertLayer::init(150)) return false;
     m_guestName = guestName;
+
+    auto winSize = CCDirector::get()->getWinSize();
+
+    m_mainLayer = CCLayer::create();
+    this->addChild(m_mainLayer);
+
+    auto bg = CCScale9Sprite::create("GJ_square01.png");
+    bg->setContentSize({300.f, 160.f});
+    bg->setPosition(winSize / 2);
+    m_mainLayer->addChild(bg);
 
     std::string title = guestName + " would like\nto collaborate with you";
     auto lbl = CCLabelBMFont::create(title.c_str(), "bigFont.fnt");
     lbl->setScale(0.45f);
-    lbl->setPosition(this->m_mainLayer->getContentSize() / 2 + CCPoint{0.f, 20.f});
-    this->m_mainLayer->addChild(lbl);
+    lbl->setPosition(winSize / 2 + CCPoint{0.f, 20.f});
+    m_mainLayer->addChild(lbl);
 
     auto menu = CCMenu::create();
-    menu->setPosition(this->m_mainLayer->getContentSize() / 2 - CCPoint{0.f, 30.f});
+    menu->setPosition(winSize / 2 - CCPoint{0.f, 30.f});
 
     auto yesBtn = CCMenuItemSpriteExtra::create(
         ButtonSprite::create("Yes", "bigFont.fnt", "GJ_button_01.png"),
