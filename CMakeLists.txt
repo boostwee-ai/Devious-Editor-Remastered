@@ -4,6 +4,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64")
 
 project(DeviousEditorRemastered VERSION 1.0.0)
+add_definitions(-DWIN32_LEAN_AND_MEAN)
 
 file(GLOB_RECURSE SOURCES
     src/*.cpp

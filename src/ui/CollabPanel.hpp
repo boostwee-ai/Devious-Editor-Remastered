@@ -10,7 +10,7 @@ using namespace geode::prelude;
 //  CollabPanel — popup listing available collaborators on the LAN.
 //  Displayed when the user clicks the collab button in the editor toolbar.
 // -----------------------------------------------------------------------
-class CollabPanel : public Popup<> {
+class CollabPanel : public geode::Popup<> {
 public:
     static CollabPanel* create();
 
@@ -30,7 +30,7 @@ private:
 // -----------------------------------------------------------------------
 //  InviteRequestPopup — shown on the host side when a guest requests collab.
 // -----------------------------------------------------------------------
-class InviteRequestPopup : public Popup<std::string> {
+class InviteRequestPopup : public geode::Popup<std::string> {
 public:
     static InviteRequestPopup* create(const std::string& guestName);
 

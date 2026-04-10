@@ -176,7 +176,7 @@ void ColabManager::onIncomingInvite(const std::string& guestName) {
     m_pendingGuestName = guestName;
     mainThread([this, guestName]() {
         auto popup = InviteRequestPopup::create(guestName);
-        static_cast<FLAlertLayer*>(popup)->show();
+        static_cast<geode::Popup<>*>(popup)->show();
     });
 }
 
@@ -301,7 +301,7 @@ void ColabManager::handleObjPlace(const std::string& body) {
     if (objStr.empty()) return;
 
     // Use GD's built-in object string parser to create the object
-    auto obj = editor->addObjectFromString(objStr, true, false);
+    auto obj = editor->addObjectFromString(objStr);
     if (!obj) return;
 
     // Flash the presence indicator
@@ -331,11 +331,10 @@ void ColabManager::handleObjDelete(const std::string& body) {
         if (tok.empty()) continue;
         int id = std::stoi(tok);
         // Find object by unique ID in the editor
-        auto obj = editor->getObjectByUniqueID(id);
-        if (obj) toDelete->addObject(obj);
-    }
-    if (toDelete->count() > 0) {
-        editor->removeObjects(toDelete, true);
+        auto obj = editor->getObjByUniqueID(id);
+        if (obj) {
+            editor->removeObject(obj, true);
+        }
     }
 
     if (m_presenceLayer) {
@@ -349,7 +348,7 @@ void ColabManager::handleObjEdit(const std::string& body) {
     if (!editor) return;
 
     int id = jInt(body, "id");
-    auto obj = editor->getObjectByUniqueID(id);
+    auto obj = editor->getObjByUniqueID(id);
     if (!obj) return;
 
     // Extract props JSON and apply using GD's property string API
