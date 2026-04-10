@@ -29,7 +29,10 @@ bool CollabPanel::init() {
     bg->setPosition(winSize / 2);
     m_mainLayer->addChild(bg);
 
-    this->setTitle("Collaborate");
+    auto title = CCLabelBMFont::create("Collaborate", "bigFont.fnt");
+    title->setScale(0.7f);
+    title->setPosition({winSize.width / 2, winSize.height / 2 + 110.f});
+    m_mainLayer->addChild(title);
     this->setTouchEnabled(true);
     this->setKeypadEnabled(true);
 

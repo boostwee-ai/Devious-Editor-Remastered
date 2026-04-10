@@ -179,7 +179,7 @@ void ColabManager::onIncomingInvite(const std::string& guestName) {
     m_pendingGuestName = guestName;
     mainThread([this, guestName]() {
         auto popup = InviteRequestPopup::create(guestName);
-        static_cast<geode::Popup<>*>(popup)->show();
+        static_cast<FLAlertLayer*>(popup)->show();
     });
 }
 

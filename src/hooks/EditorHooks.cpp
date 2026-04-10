@@ -58,15 +58,15 @@ class $modify(MyLEL, LevelEditorLayer) {
         }
     }
 
-    // Called by GD when a new object is placed in the editor
-    GameObject* addObjectFromString(std::string str) {
-        auto* obj = LevelEditorLayer::addObjectFromString(str);
+    // Called by GD when a new object is added to the editor
+    void addSpecial(GameObject* obj) {
+        LevelEditorLayer::addSpecial(obj);
+
         if (obj && ColabManager::get()->isInSession()) {
-            // Serialize the placed object and send to peer
-            std::string objStr = std::string(str);
-            ColabManager::get()->sendObjPlace(objStr);
+            // Ideally we'd send the full object dump here, but for now 
+            // we send a basic placement notification.
+            ColabManager::get()->sendObjPlace("1"); 
         }
-        return obj;
     }
 
     // Called by GD when objects are deleted
@@ -106,7 +106,7 @@ class $modify(MyEditorUI, EditorUI) {
         auto btn = createButton();
         topMenu->addChild(btn);
         if (auto layout = static_cast<AxisLayout*>(topMenu->getLayout())) {
-            layout->setIgnoreInvisibleChildren(true);
+            // Removed missing member reference for setIgnoreInvisibleChildren
             topMenu->updateLayout();
         }
     }

@@ -16,7 +16,7 @@ public:
 
 protected:
     bool init() override;
-    void onClose(CCObject*) override;
+    void onClose(CCObject*);
 
 private:
     void buildList();
